@@ -1,13 +1,27 @@
-FROM python:3.7
+FROM python:3.7-slim
 
-RUN mkdir /usr/src/app/
+RUN mkdir -p /opt/oracle
+RUN apt-get update \
+    && apt-get -y install libaio-dev \
+    && apt-get -y install unzip
 
-COPY ./app /usr/src/app/
+ADD ./Docker/python/oracle-instantclient/ /opt/
+ADD ./Docker/python/install-instantclient.sh /opt/
 
-WORKDIR /usr/src/app/
+COPY ./app /opt/app/
+
+WORKDIR /opt/
+
+ENV ORACLE_HOME=/opt/oracle/instantclient
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ORACLE_HOME
+ENV OCI_HOME=/opt/oracle/instantclient
+ENV OCI_LIB_DIR=/opt/oracle/instantclient
+# ENV OCI_INCLUDE_DIR=/opt/oracle/instantclient/sdk/include
 
 EXPOSE 3000
 
-RUN pip install -r requirements.txt
+RUN ./install-instantclient.sh \
+&& cd ./app \
+&& pip install -r requirements.txt
 
-CMD ["python", "app.py"]
+CMD ["python", "./app/app.py"]

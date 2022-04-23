@@ -5,7 +5,7 @@ services:
             context: .
             dockerfile:  ./Docker/python/Dockerfile
         volumes: 
-            - ./app/:/usr/src/app
+            - ./app/:/opt/app
         ports: 
             - 3000:3000
         environment: 
